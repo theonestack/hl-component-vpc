@@ -165,7 +165,3 @@ config_export:
   global:
     - maximum_availability_zones
 
-lib_export:
-  global:
-    cfndsl:
-      - az
