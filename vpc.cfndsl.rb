@@ -33,7 +33,10 @@ CloudFormation do
       Ref('EnvironmentName'), Ref('DnsDomain')
   ])
 
+  Condition('Route53ZoneGiven', FnNot(FnEquals(Ref('DnsDomain'),'')))
+
   Route53_HostedZone('HostedZone') do
+    Condition('Route53ZoneGiven')
     Name dns_domain
   end
 
@@ -231,6 +234,10 @@ CloudFormation do
   Output("SecurityGroupBackplane") {
     Value(Ref('SecurityGroupBackplane'))
     Export FnSub("${EnvironmentName}-#{component_name}-SecurityGroupBackplane")
+  }
+  Output('HostedZoneId') {
+    Condition 'Route53ZoneGiven'
+    Value(Ref('HostedZone'))
   }
 
   nat_ip_list = nat_gateway_ips_list_internal(maximum_availability_zones)
