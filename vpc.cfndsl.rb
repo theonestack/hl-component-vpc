@@ -29,19 +29,15 @@ CloudFormation do
     EnableDnsHostnames true
   end
 
-  dns_domain = FnJoin('.', [
-      Ref('EnvironmentName'), Ref('DnsDomain')
-  ])
-
   Condition('Route53ZoneGiven', FnNot(FnEquals(Ref('DnsDomain'),'')))
 
   Route53_HostedZone('HostedZone') do
     Condition('Route53ZoneGiven')
-    Name dns_domain
-  end
+    Name FnSub(dns_zone)
+  end unless (dns_zone.nil? or dns_zone.empty?)
 
   EC2_DHCPOptions('DHCPOptionSet') do
-    DomainName dns_domain
+    DomainName FnSub(dns_zone) unless (dns_zone.nil? or dns_zone.empty?)
     DomainNameServers ['AmazonProvidedDNS']
   end
 

@@ -11,6 +11,8 @@ maximum_availability_zones: 5
 component_version: 1.0.3
 stdext: github:toshke/hl-component-stdext
 
+dns_zone: $EnvironmentName.$DnsDomain
+
 subnets:
   vpc_public:
     allocation: 0
