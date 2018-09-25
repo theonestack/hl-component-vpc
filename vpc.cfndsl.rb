@@ -29,16 +29,15 @@ CloudFormation do
     EnableDnsHostnames true
   end
 
-  dns_domain = FnJoin('.', [
-      Ref('EnvironmentName'), Ref('DnsDomain')
-  ])
+  Condition('Route53ZoneGiven', FnNot(FnEquals(Ref('DnsDomain'),'')))
 
   Route53_HostedZone('HostedZone') do
-    Name dns_domain
-  end
+    Condition('Route53ZoneGiven')
+    Name FnSub(dns_zone)
+  end unless (dns_zone.nil? or dns_zone.empty?)
 
   EC2_DHCPOptions('DHCPOptionSet') do
-    DomainName dns_domain
+    DomainName FnSub(dns_zone) unless (dns_zone.nil? or dns_zone.empty?)
     DomainNameServers ['AmazonProvidedDNS']
   end
 
@@ -231,6 +230,10 @@ CloudFormation do
   Output("SecurityGroupBackplane") {
     Value(Ref('SecurityGroupBackplane'))
     Export FnSub("${EnvironmentName}-#{component_name}-SecurityGroupBackplane")
+  }
+  Output('HostedZoneId') {
+    Condition 'Route53ZoneGiven'
+    Value(Ref('HostedZone'))
   }
 
   nat_ip_list = nat_gateway_ips_list_internal(maximum_availability_zones)
