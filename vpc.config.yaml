@@ -37,6 +37,12 @@ enable_transit_vpc: false
 manage_ns_records: false
 #is false by default for backward compatibilty
 
+# Create DNS Zone enables or disables the creation of
+# the Route53 HostedZone resource. Set to false if you want to use
+# a zone that already exists in route 53 in the same AWS account.
+create_dns_zone: true
+# is true by default for backward compatibilty
+
 #
 # NACL Rules
 #

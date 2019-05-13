@@ -1,0 +1,6 @@
+test_metadata:
+  type: config
+  name: byo hosted zone
+  description: use a pre existing route 53 zone
+
+create_dns_zone: false
