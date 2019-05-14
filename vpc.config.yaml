@@ -43,6 +43,13 @@ manage_ns_records: false
 create_dns_zone: true
 # is true by default for backward compatibilty
 
+# Environment Name as a Sub Domain will create a subdomain route53
+# HostedZone based using FnJoin EnvironmentName.DnsDomain cloudformation
+# parameters if set to true. The root domain can be hosted in any dns register.
+# If set to false just the DnsDomain parameter is used.
+environment_name_sub_domain: true
+# is true by default for backward compatibilty
+
 #
 # NACL Rules
 #

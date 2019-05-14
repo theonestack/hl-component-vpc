@@ -39,9 +39,11 @@ CloudFormation do
     Tags vpc_tags
   end
 
-  dns_domain = FnJoin('.', [
-      Ref('EnvironmentName'), Ref('DnsDomain')
-  ])
+  if environment_name_sub_domain
+    dns_domain = FnJoin('.', [Ref('EnvironmentName'), Ref('DnsDomain')])
+  else
+    dns_domain = Ref('DnsDomain')
+  end
 
   unless manage_ns_records
     Route53_HostedZone('HostedZone') do
@@ -299,7 +301,7 @@ CloudFormation do
 
   if defined?(flowlogs)
     log_retention = (flowlogs.is_a?(Hash) && flowlogs.has_key?('log_retention')) ? flowlogs['log_retention'] : 7
-    
+
 
     Resource('FlowLogsLogGroup') {
       Type 'AWS::Logs::LogGroup'
@@ -314,7 +316,7 @@ CloudFormation do
           Statement: [
             {
               Effect: 'Allow',
-              Principal: {  
+              Principal: {
                 Service: 'vpc-flow-logs.amazonaws.com'
               },
               Action: [ 'sts:AssumeRole' ]
@@ -341,7 +343,7 @@ CloudFormation do
           }
       ])
     end
-  
+
 
     EC2_FlowLog("VPCFlowLogs") do
       DeliverLogsPermissionArn FnGetAtt('PutVPCFlowLogsRole', 'Arn')

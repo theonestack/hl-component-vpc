@@ -1,0 +1,6 @@
+test_metadata:
+  type: config
+  name: environment name sub domain
+  description: environment_name_sub_domain config option set to false
+
+environment_name_sub_domain: false
