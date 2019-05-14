@@ -45,7 +45,7 @@ CloudFormation do
     dns_domain = Ref('DnsDomain')
   end
 
-  unless manage_ns_records
+  if create_dns_zone && !manage_ns_records
     Route53_HostedZone('HostedZone') do
       Name dns_domain
       HostedZoneConfig ({
