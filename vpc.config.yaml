@@ -37,6 +37,9 @@ enable_transit_vpc: false
 manage_ns_records: false
 #is false by default for backward compatibilty
 
+# Set the string to format the Fn::Sub HostedZone
+dns_format: ${EnvironmentName}.${DnsDomain}
+
 #
 # NACL Rules
 #
@@ -170,6 +173,7 @@ managed_accounts:
 config_export:
   global:
     - maximum_availability_zones
+    - dns_format
 
 lib_export:
   global:
