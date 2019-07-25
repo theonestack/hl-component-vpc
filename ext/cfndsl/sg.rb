@@ -24,14 +24,14 @@ end
 def lookup_ips_for_sg (ips, ip_block_name={})
   cidr = []
   if ip_block_name == 'stack'
-    cidr = [FnJoin( "", [ Ref('NetworkPrefix'), Ref('StackOctet'), ".", "0.0/16" ] )]
+    cidr = [FnJoin( "", [ Ref('NetworkPrefix'), '.', Ref('StackOctet'), ".", "0.0/16" ] )]
   elsif ips.has_key? ip_block_name
     ips[ip_block_name].each do |ip|
       if (ips.include?(ip) || ip_block_name == 'stack')
         cidr += lookup_ips_for_sg(ips, ip) unless ip == ip_block_name
       else
         if ip == 'stack'
-          cidr << [FnJoin( "", [ Ref('NetworkPrefix'), Ref('StackOctet'), ".", "0.0/16" ] )]
+          cidr << [FnJoin( "", [ Ref('NetworkPrefix'), '.', Ref('StackOctet'), ".", "0.0/16" ] )]
         elsif(isCidr(ip))
           cidr << ip
         else
