@@ -69,6 +69,11 @@ CloudFormation do
   EC2_NetworkAcl('PublicNetworkAcl') do
     VpcId Ref('VPC')
   end
+  
+  Output("PublicNetworkAcl") {
+    Value(Ref('PublicNetworkAcl'))
+    Export FnSub("${EnvironmentName}-#{component_name}-PublicNetworkAcl")
+  }
 
   public_acl_rules.each do |type, entries|
     entries.each do |entry|
