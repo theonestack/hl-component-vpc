@@ -1,5 +1,3 @@
-require 'netaddr'
-
 def sg_create_rules (security_groups, ip_blocks={})
   rules = []
   security_groups.each do | group |
@@ -50,10 +48,5 @@ def lookup_ips_for_sg (ips, ip_block_name={})
 end
 
 def isCidr(block)
-  begin
-    NetAddr::CIDR.create(block)
-    return block.include?('/')
-  rescue NetAddr::ValidationError
-    return false
-  end
+  block =~ /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$/
 end
