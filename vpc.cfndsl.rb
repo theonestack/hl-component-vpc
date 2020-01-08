@@ -2,6 +2,7 @@
 CloudFormation do
 
   # Render AZ conditions
+  maximum_availability_zones = external_parameters.fetch(:maximum_availability_zones, 5)
   az_conditions(maximum_availability_zones)
   max_nat_conditions(maximum_availability_zones)
 
@@ -17,7 +18,9 @@ CloudFormation do
   tags = []
   tags << { Key: 'Environment', Value: Ref(:EnvironmentName) }
   tags << { Key: 'EnvironmentType', Value: Ref(:EnvironmentType) }
-  extra_tags.each { |key,value| tags << { Key: key, Value: value } } if defined? extra_tags
+
+  extra_tags = external_parameters.fetch(:extra_tags, {})
+  extra_tags.each { |key,value| tags << { Key: key, Value: value } }
 
 
   # VPC Itself
@@ -39,7 +42,7 @@ CloudFormation do
     Tags vpc_tags
   end
 
-  unless manage_ns_records
+  unless external_parameters[:manage_ns_records]
     Route53_HostedZone('HostedZone') do
       Name FnSub(dns_format)
       HostedZoneConfig ({
@@ -70,7 +73,7 @@ CloudFormation do
     VpcId Ref('VPC')
   end
 
-  public_acl_rules.each do |type, entries|
+  external_parameters[:public_acl_rules].each do |type, entries|
     entries.each do |entry|
       if entry.key? 'ips'
         increment = 0
@@ -154,7 +157,7 @@ CloudFormation do
 
 
   # Create defined subnets
-  subnets.each do |name, config|
+  external_parameters[:subnets].each do |name, config|
     subnetRefs = []
     subnet_tags = []
     subnet_tags += tags
@@ -177,7 +180,7 @@ CloudFormation do
     subnet_list = az_conditional_resources_internal("Subnet#{config['name']}",maximum_availability_zones)
     Output("#{config['name']}Subnets") {
       Value(FnJoin(',', subnet_list))
-      Export FnSub("${EnvironmentName}-#{component_name}-#{config['name']}Subnets")
+      Export FnSub("${EnvironmentName}-#{external_parameters[:component_name]}-#{config['name']}Subnets")
     }
   end
 
@@ -199,6 +202,7 @@ CloudFormation do
 
   end
 
+  securityGroups = external_parameters[:securityGroups]
   if securityGroups.key?('ops')
     EC2_SecurityGroup('SecurityGroupOps') do
       VpcId Ref('VPC')
@@ -244,7 +248,7 @@ CloudFormation do
     end
   end
 
-  if enable_transit_vpc
+  if external_parameters[:enable_transit_vpc]
     VPNGateway('VGW') do
       Type 'ipsec.1'
       Tags [
@@ -268,23 +272,23 @@ CloudFormation do
   # Outputs
   Output("VPCId") {
     Value(Ref('VPC'))
-    Export FnSub("${EnvironmentName}-#{component_name}-VPCId")
+    Export FnSub("${EnvironmentName}-#{external_parameters[:component_name]}-VPCId")
   }
   Output("VPCCidr") {
     Value(FnGetAtt('VPC', 'CidrBlock'))
-    Export FnSub("${EnvironmentName}-#{component_name}-VPCCidr")
+    Export FnSub("${EnvironmentName}-#{external_parameters[:component_name]}-VPCCidr")
   }
   Output("SecurityGroupOps") {
     Value(Ref('SecurityGroupOps'))
-    Export FnSub("${EnvironmentName}-#{component_name}-SecurityGroupOps")
+    Export FnSub("${EnvironmentName}-#{external_parameters[:component_name]}-SecurityGroupOps")
   }
   Output("SecurityGroupDev") {
     Value(Ref('SecurityGroupDev'))
-    Export FnSub("${EnvironmentName}-#{component_name}-SecurityGroupDev")
+    Export FnSub("${EnvironmentName}-#{external_parameters[:component_name]}-SecurityGroupDev")
   }
   Output("SecurityGroupBackplane") {
     Value(Ref('SecurityGroupBackplane'))
-    Export FnSub("${EnvironmentName}-#{component_name}-SecurityGroupBackplane")
+    Export FnSub("${EnvironmentName}-#{external_parameters[:component_name]}-SecurityGroupBackplane")
   }
 
   nat_ip_list = nat_gateway_ips_list_internal(maximum_availability_zones)
@@ -292,8 +296,8 @@ CloudFormation do
     Value(FnJoin(',', nat_ip_list))
   }
 
-
-  if defined?(flowlogs)
+  flowlogs = external_parameters.fetch(:flowlogs, {})
+  unless flowlogs.empty?
     log_retention = (flowlogs.is_a?(Hash) && flowlogs.has_key?('log_retention')) ? flowlogs['log_retention'] : 7
 
 
