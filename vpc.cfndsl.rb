@@ -251,6 +251,9 @@ CloudFormation do
   if external_parameters[:enable_transit_vpc]
     VPNGateway('VGW') do
       Type 'ipsec.1'
+      if external_parameters[:vgw_asn] 
+        AmazonSideAsn external_parameters[:vgw_asn]
+      end  
       Tags [
           { Key: 'Name', Value: FnJoin("", [Ref('EnvironmentName'), "-VGW"]) },
           { Key: 'transitvpc:spoke', Value: Ref('EnableTransitVPC') }
