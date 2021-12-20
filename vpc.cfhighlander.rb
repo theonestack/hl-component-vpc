@@ -28,6 +28,9 @@ CfhighlanderTemplate do
       ComponentParam 'EnableTransitVPC', 'false', isGlobal: true
     end
 
+    ComponentParam 'NatEnabled', 'true',
+      allowedValues: ['true', 'false']
+
     # Account mappings for AZs
     maximum_availability_zones.times do |x|
       az = x
