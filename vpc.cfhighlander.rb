@@ -67,7 +67,7 @@ CfhighlanderTemplate do
 
   end
 
-  Component template: 'route53-zone@1.0.3', name: 'dnszone', render: Inline do
+  Component template: 'route53-zone@1.4.2', name: 'dnszone', render: Inline do
     parameter name: 'CreateZone', value: 'true'
     parameter name: 'RootDomainName', value: FnSub('${DnsDomain}.')
   end if manage_ns_records
