@@ -68,7 +68,7 @@ module Highlander
           end
         end
         @@maps = maps
-        FileUtils.mkpath (File.dirname (cached_mappings_path )) unless File.exists? (File.dirname (cached_mappings_path))
+        FileUtils.mkpath (File.dirname (cached_mappings_path )) unless File.exist? (File.dirname (cached_mappings_path))
         File.write(cached_mappings_path, maps.to_yaml)
         return maps
       end
